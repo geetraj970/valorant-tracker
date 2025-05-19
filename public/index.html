@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reflex#fav Valorant Rank Tracker</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #111; color: white; text-align: center; padding: 2rem; }
+    .rank-logo { width: 120px; }
+    .progress-bar {
+      width: 60%; height: 20px; background: #555; margin: 1rem auto; border-radius: 10px; overflow: hidden;
+    }
+    .progress { height: 100%; background: limegreen; }
+  </style>
+</head>
+<body>
+  <h1>Reflex#fav - Valorant Rank Tracker</h1>
+  <img id="rankLogo" class="rank-logo" src="" alt="Rank Logo" />
+  <h2 id="rankText"></h2>
+  <div class="progress-bar"><div id="rrProgress" class="progress" style="width: 0%"></div></div>
+  <p id="rrValue"></p>
+  <p id="lastMatch"></p>
+  <script>
+    async function fetchRank() {
+      try {
+        const res = await fetch("/api/rank");
+        const json = await res.json();
+        const data = json.data;
+
+        document.getElementById("rankLogo").src = data.images.small;
+        document.getElementById("rankText").innerText = data.currenttierpatched;
+        document.getElementById("rrProgress").style.width = `${data.ranking_in_tier}%`;
+        document.getElementById("rrValue").innerText = `RR: ${data.ranking_in_tier}/100`;
+
+        const change = data.mmr_change_to_last_game;
+        const sign = change >= 0 ? "+" : "";
+        document.getElementById("lastMatch").innerText = `Last match RR change: ${sign}${change}`;
+      } catch (e) {
+        console.error("Failed to fetch rank", e);
+      }
+    }
+
+    fetchRank();
+    setInterval(fetchRank, 120000);
+  </script>
+</body>
+</html>
